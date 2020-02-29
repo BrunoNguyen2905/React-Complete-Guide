@@ -5,9 +5,9 @@ import Person from './Person/Person.js';
 class App extends Component {
   state =  {
     persons: [
-      { name:'Nhan', age:'19'  },
-      { name:'Quan', age:'21'  },
-      { name:'Khoa', age:'24'  }
+      { id: 'abc', name:'Nhan', age:'19'  },
+      { id:'cde', name:'Quan', age:'21'  },
+      { id:'efg', name:'Khoa', age:'24'  }
     ], 
     otherState: 'some other values',// this one is untouch because it is just overwritten by switchNameHandler method in name, age and otherState will not be discarded 
     showPersons: false //togglePersonHandler
@@ -28,24 +28,50 @@ class App extends Component {
   // line above implicitly add 'return' keyword in front of this.switchNameHandler() and return a function call
   //It can be convinient syntax but inefficient . Use .bind() instead
   
-  nameChangeHandler= (event) =>{
+  nameChangeHandler= (event, id) =>{
+    const personIndex = this.state.persons.findIndex(p => {
+      return p.id ===id ;
+    });
+
+    const person = {
+      ...this.state.persons[personIndex]
+    };
+
+    // const person = Object.assign({}, this.state.persons[personIndex]); alternative
+
+    person.name = event.target.value;
+
+    const persons = [...this.state.persons];
+    persons[personIndex] = person;
+    
+
     this.setState({ //.bind(this) will control what this in this method setState 
-      persons: [
-        { name:'Nhan', age:'19'  },
-        { name: event.target.value, age:'22'  }, //dymamically update something + onChange in Person.js
-        { name:'Khoa', age:'24'  }
-      ] 
+      persons: persons
+      // persons: [
+      //   { name:'Nhan', age:'19'  },
+      //   { name: event.target.value, age:'22'  }, //dymamically update something + onChange in Person.js
+      //   { name:'Khoa', age:'24'  }
+      // ] 
     });
 
   }
   //<button onClick={this.switchNameHandler('Nhan Handsome')}>Switch Name</button> is replaced by this.togglePersonHandler
   //togglePersonsHandler (){} function call will have problem if we want to use this keyword
 
+
   togglePersonsHandler = () =>{ //this function + tertiary condition in button to toggle person components
     const doesShow = this.state.showPersons;
     this.setState({showPersons: !doesShow});
 
   };
+
+  deletePersonsHandler = (personIndex) => {
+    // const persons = this.state.persons.slice(); //slice() mean copy the full array and return the new one
+   const persons = [... this.state.persons]; //
+    persons.splice(personIndex, 1);         // splice(arg, 1): Removes elements from an array and, if necessary, inserts new elements in their place, returning the deleted elements. 1: remove 1 element from the array
+    this.setState({persons: persons})
+    
+  }
 
   render() {
 
@@ -62,7 +88,15 @@ class App extends Component {
     if(this.state.showPersons){
       persons = (
         <div>
-            <Person 
+          {this.state.persons.map((person, index) => {
+            return <Person
+              click = {() => this.deletePersonsHandler(index)} 
+              name = {person.name} 
+              age={person.age} 
+              key= {person.id} 
+              changed ={(event) => this.nameChangeHandler(event, person.id)} />
+          })}
+            {/* <Person 
             name={this.state.persons[0].name} 
             age ={this.state.persons[0].age}/> 
             <Person 
@@ -72,7 +106,7 @@ class App extends Component {
             changed ={this.nameChangeHandler}> My Hobbies: Soccer</Person> 
             <Person 
             name={this.state.persons[2].name} 
-            age ={this.state.persons[2].age}/> 
+            age ={this.state.persons[2].age}/>  */}
         </div> 
       );
     }
