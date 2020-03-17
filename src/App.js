@@ -1,24 +1,10 @@
 import React, {Component} from 'react';
-import styled from 'styled-components';
-import './App.css';
+import classes from './App.module.css'; 
+
+import ErrorBoundary from './ErrorBoundary/ErrorBoundary.js';
+
 
 import Person from './Person/Person.js';
-
-const StyledButton= styled.button `
-  background-color: ${props => props.alt ? 'red': 'green'}; /* alt in the button*/
-  color: white;
-  font: inherit;
-  border: 1px solid blue;
-  padding: 8px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: ${props => props.alt ? 'salmon': 'lightgreen'}; /* alt in the button*/
-    color: black;
-
-  }
-`;
-
 
 class App extends Component {
   state =  {
@@ -103,17 +89,20 @@ class App extends Component {
     // };
 
     let persons = null;
+    let btnClass = [classes.Button];
     
     if(this.state.showPersons){
       persons = (
         <div>
           {this.state.persons.map((person, index) => {
-            return <Person
-              click = {() => this.deletePersonsHandler(index)} 
-              name = {person.name} 
-              age={person.age} 
-              key= {person.id} 
-              changed ={(event) => this.nameChangeHandler(event, person.id)} />
+            return <ErrorBoundary>
+                <Person
+                  click = {() => this.deletePersonsHandler(index)} 
+                  name = {person.name} 
+                  age={person.age} 
+                  key= {person.id} 
+                  changed ={(event) => this.nameChangeHandler(event, person.id)} />
+              </ErrorBoundary>
           })}
             {/* <Person 
             name={this.state.persons[0].name} 
@@ -133,27 +122,33 @@ class App extends Component {
         //backgroundColor: 'salmon',
         //color: 'black'
       //};
+      
+      btnClass.push(classes.Red);  
 
 
     }
     
     //let classes =['red', 'bold'].join(' ');//join 2 classes into a class  "red bold" valid css class list
-    const classes = []; //const because never assign a new variable
+    const assignedClasses = []; //const because never assign a new variable
     if(this.state.persons.length <= 2){
-      classes.push('red'); // classes =['red'] // 
+      assignedClasses.push(classes.red); // classes =['red'] // 
     }
     if(this.state.persons.length <= 1){
-      classes.push ('bold'); // classes = ['red', 'bold'] // need join(' ') to join red and bold
+      assignedClasses.push (classes.bold); // classes = ['red', 'bold'] // need join(' ') to join red and bold
+    }
+
+    if(this.state.persons.length <= 0){
+      assignedClasses.push (classes.italic); // classes = ['red', 'bold', 'italic'] // need join(' ') to join red and bold
     }
 
     return (
-      <div className="App">
+      <div className={classes.App}>
         <h1>Hi, I'm a React App</h1>
-        <p className={classes.join(' ')}>This is really working!</p>
-        <StyledButton
-          alt= {this.state.showPersons}// depend on this.state.showPersons
+        <p className={assignedClasses.join(' ')}>This is really working!</p>
+        <button
+          className={btnClass.join(' ')}
           onClick={this.togglePersonsHandler}>Toogle Persons
-        </StyledButton>  
+        </button>  
         {persons}
       </div>
     );
