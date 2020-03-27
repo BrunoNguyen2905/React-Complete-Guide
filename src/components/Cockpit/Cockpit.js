@@ -1,6 +1,8 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useRef, useContext} from 'react';
 
 import classes from './Cockpit.module.css';
+import AuthContext from '../../context/auth-context';
+
 
 // functional components dont manage state(presentational components/ stateless (can manage state by hook))
 //Are concerned with how things look.
@@ -10,14 +12,23 @@ import classes from './Cockpit.module.css';
 
 const cockpit = (props) => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  useEffect(() => {
+  const toggleBtnRef = useRef(null); //Refs with React Hooks in functional components
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const authContext = useContext(AuthContext);
+  
+  console.log(authContext.authenticated);
+
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => { //useEffect runs after jsx code has been rendering for the first time
     console.log('[Cockpit.js] useEffect');
     //http request...
-    const timer = setTimeout( () =>{
-      alert('Saved data to cloud');
-    } ,1000);
+    // const timer = setTimeout( () =>{
+    //   alert('Saved data to cloud');
+    // } ,1000);
+    toggleBtnRef.current.click();// instanly click 'Toggle Persons' button after reloading the page
     return () =>{ //to be precise, it runs BEFORE the main useEffect function runs, but AFTER the (first) render cycle!
-      clearTimeout(timer);
+      // clearTimeout(timer);
       console.log('[Cockpit.js] cleaup work in useEffect');
     }
   }, []); //only show alert when changes occurs in props.persons . If only use [](pass an empty array), 
@@ -55,9 +66,13 @@ const cockpit = (props) => {
       <h1>{props.title}</h1>
       <p className={assignedClasses.join(' ')}>This is really working!</p>
       <button
+        ref={toggleBtnRef}
         className={btnClass}
         onClick={props.clicked}>Toogle Persons
-            </button>
+        </button>
+        
+        <button onClick={authContext.login}>Log in</button>}
+          
     </div>
   );
 };
